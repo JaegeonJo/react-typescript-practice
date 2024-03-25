@@ -1,16 +1,16 @@
 import { useState, PropsWithChildren } from "react";
 
 type TodoItem = {
-  key: number;
-  content: string;
-  completed: boolean;
+  key: number,
+  content: string,
+  completed: boolean,
 };
 
 type TodoItemProps = PropsWithChildren<{
-  item: TodoItem;
-  onChangeCheckbox: (checked: boolean) => void;
-  onClickRemove: () => void;
-  onChangeContent: (content: string) => void;
+  item: TodoItem,
+  onChangeCheckbox: (checked: boolean) => void,
+  onClickRemove: () => void,
+  onChangeContent: (content: string) => void,
 }>;
 
 function TodoItemComponent({

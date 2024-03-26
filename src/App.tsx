@@ -1,4 +1,4 @@
-import { useState, PropsWithChildren } from "react";
+import { useState } from "react";
 
 type TodoItem = {
   key: number,
@@ -6,19 +6,18 @@ type TodoItem = {
   completed: boolean,
 };
 
-type TodoItemProps = PropsWithChildren<{
+type TodoItemProps = {
   item: TodoItem,
   onChangeCheckbox: (checked: boolean) => void,
   onClickRemove: () => void,
   onChangeContent: (content: string) => void,
-}>;
+};
 
 function TodoItemComponent({
   item,
   onChangeCheckbox,
   onClickRemove,
   onChangeContent,
-  children,
 }: TodoItemProps) {
   const [isEdit, setIsEdit] = useState(false);
   return (
@@ -60,7 +59,6 @@ function TodoItemComponent({
         </span>
       )}
       <button onClick={onClickRemove}>Remove</button>
-      {children}
     </div>
   );
 }

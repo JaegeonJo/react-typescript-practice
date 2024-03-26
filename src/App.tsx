@@ -112,13 +112,9 @@ function App() {
             <TodoItemComponent
               key={item.key}
               item={item}
-              onChangeCheckbox={(checked) => {
+              onChangeCheckbox={(completed) => {
                 setTodoList(() => {
-                  return getUpdatedList(todoList, item.key, (prevItem) => ({
-                    key: prevItem.key,
-                    content: prevItem.content,
-                    completed: checked,
-                  }));
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({...prevItem, completed}));
                 });
               }}
               onClickRemove={() => {
@@ -133,11 +129,7 @@ function App() {
               }}
               onChangeContent={(content) => {
                 setTodoList(() => {
-                  return getUpdatedList(todoList, item.key, (prevItem) => ({
-                    key: prevItem.key,
-                    content: content,
-                    completed: prevItem.completed,
-                  }));
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({...prevItem, content}));
                 });
               }}
             />

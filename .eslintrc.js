@@ -12,6 +12,7 @@ module.exports = {
   extends: [
     'airbnb-typescript',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'prettier'
   ],
   settings: {
     'import/resolver': {

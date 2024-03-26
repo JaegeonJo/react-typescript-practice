@@ -1,6 +1,145 @@
-function App() {
+import { useState } from "react";
+
+type TodoItem = {
+  key: string,
+  content: string,
+  completed: boolean,
+};
+
+type TodoItemProps = {
+  item: TodoItem,
+  onChangeCheckbox: (checked: boolean) => void,
+  onClickRemove: () => void,
+  onChangeContent: (content: string) => void,
+};
+
+function TodoItemComponent({
+  item,
+  onChangeCheckbox,
+  onClickRemove,
+  onChangeContent,
+}: TodoItemProps) {
+  const [isEdit, setIsEdit] = useState(false);
+  const [userInput, setUserInput] = useState('');
   return (
-    <div>Hello, World!</div>
+    <div>
+      <input
+        type="checkbox"
+        checked={item.completed}
+        onChange={({ target }) => {
+          onChangeCheckbox(target.checked);
+        }}
+      />
+      {isEdit ? (
+        <span>
+          <input
+            type="text"
+            value={userInput}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+            }}
+          />
+          <button
+            onClick={() => {
+              onChangeContent(userInput);
+              setIsEdit(false);
+            }}
+          >
+            Update
+          </button>
+        </span>
+      ) : (
+        <span>
+          {item.content}
+          <button
+            onClick={() => {
+              setIsEdit(true);
+              setUserInput(item.content)
+            }}
+          >
+            Edit
+          </button>
+        </span>
+      )}
+      <button onClick={onClickRemove}>Remove</button>
+    </div>
+  );
+}
+
+function App() {
+  const [todoList, setTodoList] = useState<TodoItem[]>([]);
+  const [inputContent, setInputContent] = useState<string>("");
+  const newTodoItem: TodoItem = {
+    key: crypto.randomUUID(),
+    content: inputContent,
+    completed: false,
+  };
+
+  function getUpdatedList(
+    itemList: TodoItem[],
+    itemKey: string,
+    updator: (prevItem: TodoItem) => TodoItem
+  ) {
+    return itemList.map((item) => {
+      if (item.key === itemKey) return updator(item);
+      return item;
+    });
+  }
+  return (
+    <div>
+      <label>
+        Todo:
+        <input
+          type="text"
+          value={inputContent}
+          onChange={(event) => {
+            setInputContent(event.target.value);
+          }}
+        />
+      </label>
+      <button
+        onClick={() => {
+          if (inputContent !== "") {
+            setTodoList(() => {
+              return [...todoList, newTodoItem];
+            });
+            setInputContent("");
+          }
+        }}
+      >
+        Add
+      </button>
+      <div>
+        {todoList.map((item) => {
+          return (
+            <TodoItemComponent
+              key={item.key}
+              item={item}
+              onChangeCheckbox={(completed) => {
+                setTodoList(() => {
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({...prevItem, completed}));
+                });
+              }}
+              onClickRemove={() => {
+                setTodoList(() => {
+                  return todoList.filter((value) => {
+                    if (item.key === value.key) {
+                      return false;
+                    }
+                    return true;
+                  });
+                });
+              }}
+              onChangeContent={(content) => {
+                setTodoList(() => {
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({...prevItem, content}));
+                });
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

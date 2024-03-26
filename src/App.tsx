@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 type TodoItem = {
-  key: number,
+  key: string,
   content: string,
   completed: boolean,
 };
@@ -67,10 +67,21 @@ function App() {
   const [todoList, setTodoList] = useState<TodoItem[]>([]);
   const [inputContent, setInputContent] = useState<string>("");
   const newTodoItem: TodoItem = {
-    key: todoList.length,
+    key: crypto.randomUUID(),
     content: inputContent,
     completed: false,
   };
+
+  function getUpdatedList(
+    itemList: TodoItem[],
+    itemKey: string,
+    updator: (prevItem: TodoItem) => TodoItem
+  ) {
+    return itemList.map((item) => {
+      if (item.key === itemKey) return updator(item);
+      return item;
+    });
+  }
   return (
     <div>
       <label>
@@ -96,29 +107,24 @@ function App() {
         Add
       </button>
       <div>
-        {todoList.map((item, itemIdx) => {
+        {todoList.map((item) => {
           return (
             <TodoItemComponent
               key={item.key}
               item={item}
               onChangeCheckbox={(checked) => {
                 setTodoList(() => {
-                  return todoList.map((value, index) => {
-                    if (itemIdx === index) {
-                      return {
-                        key: value.key,
-                        content: value.content,
-                        completed: checked,
-                      };
-                    }
-                    return value;
-                  });
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({
+                    key: prevItem.key,
+                    content: prevItem.content,
+                    completed: checked,
+                  }));
                 });
               }}
               onClickRemove={() => {
                 setTodoList(() => {
-                  return todoList.filter((_, index) => {
-                    if (itemIdx === index) {
+                  return todoList.filter((value) => {
+                    if (item.key === value.key) {
                       return false;
                     }
                     return true;
@@ -127,16 +133,11 @@ function App() {
               }}
               onChangeContent={(content) => {
                 setTodoList(() => {
-                  return todoList.map((value, index) => {
-                    if (itemIdx === index) {
-                      return {
-                        key: value.key,
-                        content: content,
-                        completed: value.completed,
-                      };
-                    }
-                    return value;
-                  });
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({
+                    key: prevItem.key,
+                    content: content,
+                    completed: prevItem.completed,
+                  }));
                 });
               }}
             />

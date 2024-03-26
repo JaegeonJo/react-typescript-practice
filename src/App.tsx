@@ -20,6 +20,7 @@ function TodoItemComponent({
   onChangeContent,
 }: TodoItemProps) {
   const [isEdit, setIsEdit] = useState(false);
+  const [userInput, setUserInput] = useState('');
   return (
     <div>
       <input
@@ -33,13 +34,14 @@ function TodoItemComponent({
         <span>
           <input
             type="text"
-            value={item.content}
+            value={userInput}
             onChange={(e) => {
-              onChangeContent(e.target.value);
+              setUserInput(e.target.value);
             }}
           />
           <button
             onClick={() => {
+              onChangeContent(userInput);
               setIsEdit(false);
             }}
           >
@@ -52,6 +54,7 @@ function TodoItemComponent({
           <button
             onClick={() => {
               setIsEdit(true);
+              setUserInput(item.content)
             }}
           >
             Edit

@@ -60,14 +60,14 @@ function TodoItemComponent({
           <button
             style={{ width: "70px" }}
             onClick={() => {
-              if (userInput !== "") {
-                setUserInput(userInput);
-                onChangeContent(userInput);
-                setIsEdit(false);
-              } else {
+              if (userInput === "") {
                 window.alert("내용을 입력해주세요.");
                 setUserInput(item.content);
+                return;
               }
+              setUserInput(userInput);
+              onChangeContent(userInput);
+              setIsEdit(false);
             }}
           >
             Update
@@ -142,24 +142,24 @@ function App() {
           value={inputDueDate}
           onChange={(event) => {
             const selectedDate: string = event.target.value;
-            if (isFuture(selectedDate)) {
-              setInputDueDate(event.target.value);
-            } else {
+            if (!isFuture(selectedDate)) {
               window.alert("오늘 날짜부터 선택 가능합니다.");
-            }
+              return;
+            } 
+            setInputDueDate(event.target.value);
           }}
         />
         <button
           onClick={() => {
-            if (inputContent !== "") {
-              setTodoList(() => {
-                return [...todoList, newTodoItem].sort(compareTodoItem);
-              });
-              setInputContent("");
-              setInputDueDate(today);
-            } else {
+            if (inputContent === "") {
               window.alert("내용을 입력해주세요.");
+              return;
             }
+            setTodoList(() => {
+              return [...todoList, newTodoItem].sort(compareTodoItem);
+            });
+            setInputContent("");
+            setInputDueDate(today);
           }}
         >
           Add

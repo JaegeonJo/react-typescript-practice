@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { format, isFuture, isAfter } from "date-fns";
 
 type TodoItem = {
   key: string,
   content: string,
+  dueDate: string,
   completed: boolean,
 };
 
@@ -20,16 +22,26 @@ function TodoItemComponent({
   onChangeContent,
 }: TodoItemProps) {
   const [isEdit, setIsEdit] = useState(false);
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
   return (
-    <div>
-      <input
-        type="checkbox"
-        checked={item.completed}
-        onChange={({ target }) => {
-          onChangeCheckbox(target.checked);
-        }}
-      />
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "120px 1fr auto",
+        justifyContent: "space-between",
+      }}
+    >
+      <label>
+        <input
+          type="checkbox"
+          checked={item.completed}
+          onChange={({ target }) => {
+            onChangeCheckbox(target.checked);
+          }}
+        />
+        {`[${item.dueDate}]`}
+      </label>
+
       {isEdit ? (
         <span>
           <input
@@ -39,39 +51,53 @@ function TodoItemComponent({
               setUserInput(e.target.value);
             }}
           />
+        </span>
+      ) : (
+        <span>{item.content}</span>
+      )}
+      <span>
+        {isEdit ? (
           <button
+            style={{ width: "70px" }}
             onClick={() => {
-              onChangeContent(userInput);
-              setIsEdit(false);
+              if (userInput !== "") {
+                setUserInput(userInput);
+                onChangeContent(userInput);
+                setIsEdit(false);
+              } else {
+                window.alert("내용을 입력해주세요.");
+                setUserInput(item.content);
+              }
             }}
           >
             Update
           </button>
-        </span>
-      ) : (
-        <span>
-          {item.content}
+        ) : (
           <button
+            style={{ width: "70px" }}
             onClick={() => {
               setIsEdit(true);
-              setUserInput(item.content)
+              setUserInput(item.content);
             }}
           >
             Edit
           </button>
-        </span>
-      )}
-      <button onClick={onClickRemove}>Remove</button>
+        )}
+        <button onClick={onClickRemove}>Remove</button>
+      </span>
     </div>
   );
 }
 
 function App() {
+  const today: string = format(new Date(), "yyyy-MM-dd");
   const [todoList, setTodoList] = useState<TodoItem[]>([]);
+  const [inputDueDate, setInputDueDate] = useState<string>(today);
   const [inputContent, setInputContent] = useState<string>("");
   const newTodoItem: TodoItem = {
     key: crypto.randomUUID(),
     content: inputContent,
+    dueDate: inputDueDate,
     completed: false,
   };
 
@@ -87,29 +113,48 @@ function App() {
   }
   return (
     <div>
-      <label>
-        Todo:
+      <div id="InputBox">
+        <label>
+          Todo:
+          <input
+            type="text"
+            value={inputContent}
+            onChange={(event) => {
+              setInputContent(event.target.value);
+            }}
+          />
+        </label>
         <input
-          type="text"
-          value={inputContent}
+          type="date"
+          value={inputDueDate}
           onChange={(event) => {
-            setInputContent(event.target.value);
+            const selectedDate: string = event.target.value;
+            if (isFuture(selectedDate)) {
+              setInputDueDate(event.target.value);
+            } else {
+              window.alert("오늘 날짜부터 선택 가능합니다.");
+            }
           }}
         />
-      </label>
-      <button
-        onClick={() => {
-          if (inputContent !== "") {
-            setTodoList(() => {
-              return [...todoList, newTodoItem];
-            });
-            setInputContent("");
-          }
-        }}
-      >
-        Add
-      </button>
-      <div>
+        <button
+          onClick={() => {
+            if (inputContent !== "") {
+              setTodoList(() => {
+                return [...todoList, newTodoItem].sort((a, b) =>
+                  isAfter(a.dueDate, b.dueDate) ? 1 : -1
+                );
+              });
+              setInputContent("");
+              setInputDueDate(today);
+            } else {
+              window.alert("내용을 입력해주세요.");
+            }
+          }}
+        >
+          Add
+        </button>
+      </div>
+      <div id="TodoList">
         {todoList.map((item) => {
           return (
             <TodoItemComponent
@@ -117,7 +162,10 @@ function App() {
               item={item}
               onChangeCheckbox={(completed) => {
                 setTodoList(() => {
-                  return getUpdatedList(todoList, item.key, (prevItem) => ({...prevItem, completed}));
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({
+                    ...prevItem,
+                    completed,
+                  }));
                 });
               }}
               onClickRemove={() => {
@@ -132,7 +180,10 @@ function App() {
               }}
               onChangeContent={(content) => {
                 setTodoList(() => {
-                  return getUpdatedList(todoList, item.key, (prevItem) => ({...prevItem, content}));
+                  return getUpdatedList(todoList, item.key, (prevItem) => ({
+                    ...prevItem,
+                    content,
+                  }));
                 });
               }}
             />

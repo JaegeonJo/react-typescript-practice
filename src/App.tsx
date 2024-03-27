@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, isFuture, isAfter } from "date-fns";
+import { format, isFuture, isAfter, isEqual } from "date-fns";
 
 type TodoItem = {
   key: string,
@@ -111,6 +111,19 @@ function App() {
       return item;
     });
   }
+
+  function compareTodoItem(prevItem: TodoItem, currItem: TodoItem) {
+    if (isEqual(prevItem.dueDate, currItem.dueDate)) {
+      return 0 // don't change order
+    }
+    if (isAfter(prevItem.dueDate, currItem.dueDate)) {
+      // currItem.dueDate is After preItem.dueDate
+      return 1
+    }
+    else {
+      return -1
+    }
+  }
   return (
     <div>
       <div id="InputBox">
@@ -140,9 +153,7 @@ function App() {
           onClick={() => {
             if (inputContent !== "") {
               setTodoList(() => {
-                return [...todoList, newTodoItem].sort((a, b) =>
-                  isAfter(a.dueDate, b.dueDate) ? 1 : -1
-                );
+                return [...todoList, newTodoItem].sort(compareTodoItem);
               });
               setInputContent("");
               setInputDueDate(today);

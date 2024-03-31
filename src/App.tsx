@@ -41,7 +41,7 @@ function App() {
   return (
     <div>
       <div id="InputBox">
-        <DatePicker />
+        <DatePicker minDate={new Date()} />
         <label>
           Todo:
           <input

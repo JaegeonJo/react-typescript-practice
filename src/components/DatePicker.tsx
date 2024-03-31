@@ -9,22 +9,11 @@ import {
   getYear,
   isBefore,
   lastDayOfMonth,
+  startOfDay,
   subDays,
 } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./DataPicker.module.css";
-
-type CalendarDateProps = {
-  key: string;
-  date: Date;
-  currentMonth: number;
-  minDate?: Date;
-  onClickDate: (selectedDate: Date) => void;
-};
-
-type DatePickerProps = {
-  minDate?: Date;
-};
 
 function getDatesInCalendarMonth(viewDate: Date) {
   const firstDate = new Date(getYear(viewDate), getMonth(viewDate), 1);
@@ -40,6 +29,13 @@ function getDatesInCalendarMonth(viewDate: Date) {
   return dates;
 }
 
+type CalendarDateProps = {
+  key: string;
+  date: Date;
+  currentMonth: number;
+  minDate?: Date;
+  onClickDate: (selectedDate: Date) => void;
+}; // Compontent 선언부랑 타입이랑 붙여두는 게 읽기 편함
 function CalendarDate({
   date,
   minDate,
@@ -48,7 +44,7 @@ function CalendarDate({
 }: CalendarDateProps) {
   const isDateInCurrentMonth = getMonth(date) === currentMonth;
   const isDateBeforeMinDate =
-    minDate === undefined ? false : isBefore(date, minDate);
+    minDate === undefined ? false : isBefore(date, startOfDay(minDate));
   return (
     <button
       disabled={!isDateInCurrentMonth || isDateBeforeMinDate}
@@ -61,33 +57,53 @@ function CalendarDate({
   );
 }
 
-function dropTime(date: Date) {
-  return new Date(getYear(date), getMonth(date), getDate(date));
-}
-
-function DatePicker({ minDate }: DatePickerProps) {
-  const _minDate = minDate === undefined ? undefined : dropTime(minDate);
-  const todayOrMinDate =
-    _minDate === undefined ? dropTime(new Date()) : _minDate;
+type DatePickerProps = {
+  minDate?: Date;
+  value: Date;
+  onSelectDate: (selectedDate: Date) => void;
+};
+function DatePicker({ value, minDate, onSelectDate }: DatePickerProps) {
   const [isOpend, setIsOpened] = useState(false);
-  const [viewDate, setViewDate] = useState(todayOrMinDate);
-  const [selectedDate, setSelectedDate] = useState(todayOrMinDate);
+  const [viewDate, setViewDate] = useState(value);
 
+  /* 중요!!! 
+  특정 상태로부터 유도될 수 있는 것들은 상태로 관리하면 안됨. 
   const [calendarDates, setCalendarDates] = useState(
     getDatesInCalendarMonth(viewDate)
-  );
+  ); 
+  */
+
+  // 중요!!!
+  // React Hook 모든 렌더링 사이클에서 동일해야한다.
+  // React Hook은 반복문, 조건문안에 넣지말아라.
+  // Clean Up function
+  useEffect(() => {
+    if (isOpend) {
+      setViewDate(value);
+    }
+  }, [isOpend]); // Render시 sideeffect 발생을 관리, 예) API 콜, 변경에 반응해서 로직을 실행할 때
+
+  useEffect(() => {
+    console.log("effect here!");
+  });
+
+  useEffect(() => {
+    const onKeyupHandler = () => {};
+    window.addEventListener("keyup", onKeyupHandler);
+    return () => {
+      window.removeEventListener("keyup", onKeyupHandler);
+    }; // Cleanup function
+  }, [isOpend]);
 
   function moveMonth(step: number) {
     const newViewDate = addMonths(viewDate, step);
-    const newMonthDates = getDatesInCalendarMonth(newViewDate);
-    setCalendarDates(newMonthDates);
     setViewDate(newViewDate);
   }
 
   return (
     <div>
       <button onClick={() => setIsOpened(!isOpend)}>
-        {format(selectedDate, "yyyy-MM-dd")}
+        {format(value, "yyyy-MM-dd")}
       </button>
       {isOpend ? (
         <div className={styles.datePicker}>
@@ -97,15 +113,15 @@ function DatePicker({ minDate }: DatePickerProps) {
             <button onClick={() => moveMonth(1)}>{"다음 달 >"}</button>
           </div>
           <div className={styles.dateContainer}>
-            {calendarDates.map((item) => (
+            {getDatesInCalendarMonth(viewDate).map((item) => (
               <CalendarDate
                 key={format(item, "yyyy-MM-dd")}
                 date={item}
-                minDate={_minDate}
+                minDate={minDate}
                 currentMonth={getMonth(viewDate)}
                 onClickDate={(d) => {
-                  setSelectedDate(d);
                   setIsOpened(false);
+                  onSelectDate(d);
                 }}
               />
             ))}

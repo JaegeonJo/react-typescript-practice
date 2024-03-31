@@ -1,9 +1,10 @@
+import { format } from "date-fns";
 import { useState } from "react";
 
 type TodoItem = {
   key: string;
   content: string;
-  dueDate: string;
+  dueDate: Date;
   completed: boolean;
 };
 
@@ -38,7 +39,7 @@ function TodoItemComponent({
             onChangeCheckbox(target.checked);
           }}
         />
-        {`[${item.dueDate}]`}
+        {`[${format(item.dueDate, "yyyy-MM-dd")}]`}
       </label>
 
       {isEdit ? (

@@ -1,14 +1,22 @@
 import type { TodoItem } from "./components/TodoItem";
 import { useState } from "react";
-import { format, isAfter, isEqual } from "date-fns";
+import { isAfter, isEqual } from "date-fns";
 import TodoItemComponent from "./components/TodoItem";
 import DatePicker from "./components/DatePicker";
+// styling: radix ui(headless UI), mui
+
+/*
+Task3: Style 다듬기.
+Task3-1: Dialog로 빼기.
+Task3-2: 날짜형태로 만들기
+Task4: API 붙이기.
+*/
 
 function App() {
-  const today: string = format(new Date(), "yyyy-MM-dd");
+  const today = new Date();
   const [todoList, setTodoList] = useState<TodoItem[]>([]);
-  const [inputDueDate, setInputDueDate] = useState<string>(today);
-  const [inputContent, setInputContent] = useState<string>("");
+  const [inputDueDate, setInputDueDate] = useState(today);
+  const [inputContent, setInputContent] = useState("");
   const newTodoItem: TodoItem = {
     key: crypto.randomUUID(),
     content: inputContent,
@@ -41,7 +49,11 @@ function App() {
   return (
     <div>
       <div id="InputBox">
-        <DatePicker minDate={new Date()} />
+        <DatePicker
+          value={inputDueDate}
+          minDate={new Date()}
+          onSelectDate={(d) => setInputDueDate(d)}
+        />
         <label>
           Todo:
           <input

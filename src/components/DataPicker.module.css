@@ -1,0 +1,5 @@
+.calendar {
+  width: 250px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}

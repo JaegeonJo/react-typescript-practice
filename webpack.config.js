@@ -11,7 +11,7 @@ module.exports = (_, argv) => {
       alias: {
         '@': path.resolve(__dirname, 'src'),
       },
-      extensions: ['.js', '.ts', '.tsx'],
+      extensions: ['.js', '.ts', '.tsx', '.css'],
     },
     entry: path.resolve(__dirname, 'src/index'),
     output: {
@@ -29,6 +29,10 @@ module.exports = (_, argv) => {
           options: {
             configFile: path.resolve(__dirname, './tsconfig.json'),
           },
+        },
+        {
+          test: /\.css$/i,
+          use: ["style-loader", "css-loader"],
         },
       ],
     },

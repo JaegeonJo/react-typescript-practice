@@ -10,6 +10,7 @@ import {
   subDays,
 } from "date-fns";
 import { useState } from "react";
+import styles from "./DataPicker.module.css";
 
 type CalendarDateProps = {
   date: Date;
@@ -61,7 +62,7 @@ function DatePicker() {
         {format(selectedDate, "yyyy-MM-dd")}
       </button>
       {isOpend ? (
-        <div>
+        <div className={styles.calendar}>
           {calendarDates.map((item) => (
             <CalendarDate
               date={item}

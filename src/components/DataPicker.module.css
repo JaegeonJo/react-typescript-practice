@@ -1,0 +1,10 @@
+.datePicker {
+  width: 250px;
+}
+
+
+
+.dateContainer {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}

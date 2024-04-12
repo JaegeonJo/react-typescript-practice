@@ -8,6 +8,14 @@ This repository provides a starting point for SPA projects using the following s
 - [ESLint](https://eslint.org/) with the [airbnb-typescript](https://github.com/iamturns/eslint-config-airbnb-typescript) extension
 - [Webpack](https://webpack.js.org/) with [webpack-dev-server](https://github.com/webpack/webpack-dev-server) (hot loading enabled)
 
+## Getting Start
+```sh
+corepack enable pnpm
+corepack use pnpm@latest
+pnpm install
+pnpm run dev
+```
+
 ## Some Notes
 - The source root (i.e., `src/`) can be referenced using the `@/` prefix.
 - The build result goes into the `build/` directory.
@@ -17,3 +25,5 @@ This repository provides a starting point for SPA projects using the following s
 - Keep track of the version upgrades of dependencies.
 - Fine-tune `.eslintrc.js` and `tsconfig.json` properly (RTFM!).
 - and more..
+
+

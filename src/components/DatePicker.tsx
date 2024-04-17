@@ -13,7 +13,8 @@ import {
   subDays,
 } from "date-fns";
 import { useEffect, useState } from "react";
-import styles from "./DataPicker.module.css";
+import * as Popover from "@radix-ui/react-popover";
+import $styles from "./DataPicker.module.css";
 
 function getDatesInCalendarMonth(viewDate: Date) {
   const firstDate = new Date(getYear(viewDate), getMonth(viewDate), 1);
@@ -47,6 +48,7 @@ function CalendarDate({
     minDate === undefined ? false : isBefore(date, startOfDay(minDate));
   return (
     <button
+      className={$styles.button}
       disabled={!isDateInCurrentMonth || isDateBeforeMinDate}
       onClick={() => {
         onClickDate(date);
@@ -83,54 +85,51 @@ function DatePicker({ value, minDate, onSelectDate }: DatePickerProps) {
     }
   }, [isOpend]); // Render시 sideeffect 발생을 관리, 예) API 콜, 변경에 반응해서 로직을 실행할 때
 
-  useEffect(() => {
-    console.log("effect here!");
-  });
-
-  useEffect(() => {
-    const onKeyupHandler = () => {};
-    window.addEventListener("keyup", onKeyupHandler);
-    return () => {
-      window.removeEventListener("keyup", onKeyupHandler);
-    }; // Cleanup function
-  }, [isOpend]);
-
   function moveMonth(step: number) {
     const newViewDate = addMonths(viewDate, step);
     setViewDate(newViewDate);
   }
 
   return (
-    <div>
-      <button onClick={() => setIsOpened(!isOpend)}>
-        {format(value, "yyyy-MM-dd")}
-      </button>
-      {isOpend ? (
-        <div className={styles.datePicker}>
-          <div>
-            <button onClick={() => moveMonth(-1)}>{"< 이전 달"}</button>
-            <span>{format(viewDate, "yyyy-MM")}</span>
-            <button onClick={() => moveMonth(1)}>{"다음 달 >"}</button>
+    <Popover.Root open={isOpend} onOpenChange={(value) => setIsOpened(value)}>
+      <Popover.Trigger asChild>
+        <button
+          className={$styles.button}
+          onClick={() => setIsOpened(!isOpend)}
+        >
+          {format(value, "yyyy-MM-dd")}
+        </button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content>
+          <div className={$styles.datePicker}>
+            <div className={$styles.header}>
+              <button className={$styles.button} onClick={() => moveMonth(-1)}>
+                {"<"}
+              </button>
+              <span>{format(viewDate, "yyyy-MM")}</span>
+              <button className={$styles.button} onClick={() => moveMonth(1)}>
+                {">"}
+              </button>
+            </div>
+            <div className={$styles.content}>
+              {getDatesInCalendarMonth(viewDate).map((item) => (
+                <CalendarDate
+                  key={format(item, "yyyy-MM-dd")}
+                  date={item}
+                  minDate={minDate}
+                  currentMonth={getMonth(viewDate)}
+                  onClickDate={(d) => {
+                    setIsOpened(false);
+                    onSelectDate(d);
+                  }}
+                />
+              ))}
+            </div>
           </div>
-          <div className={styles.dateContainer}>
-            {getDatesInCalendarMonth(viewDate).map((item) => (
-              <CalendarDate
-                key={format(item, "yyyy-MM-dd")}
-                date={item}
-                minDate={minDate}
-                currentMonth={getMonth(viewDate)}
-                onClickDate={(d) => {
-                  setIsOpened(false);
-                  onSelectDate(d);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div></div>
-      )}
-    </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }
 

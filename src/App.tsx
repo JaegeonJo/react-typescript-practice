@@ -49,11 +49,13 @@ function App() {
   return (
     <div>
       <div id="InputBox">
-        <DatePicker
-          value={inputDueDate}
-          minDate={new Date()}
-          onSelectDate={(d) => setInputDueDate(d)}
-        />
+        <div>
+          <DatePicker
+            value={inputDueDate}
+            minDate={new Date()}
+            onSelectDate={(d) => setInputDueDate(d)}
+          />
+        </div>
         <label>
           Todo:
           <input
